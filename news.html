@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Briefly | Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            neon: '#00d9ff',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="dark bg-gradient-to-br from-[#0a0a0a] via-[#0f1923] to-[#000a1f] text-white min-h-screen transition-all duration-500">
+
+  <!-- Header -->
+  <header class="flex flex-wrap justify-between items-center px-6 py-4 sticky top-0 bg-black/40 backdrop-blur-md border-b border-neon/30 shadow-lg z-50">
+    <div>
+      <h1 class="text-3xl font-extrabold text-neon drop-shadow-[0_0_10px_#00d9ff]">📰 Briefly</h1>
+      <p class="text-sm text-gray-400">Stay informed. Stay ahead.</p>
+    </div>
+    <div class="flex gap-2 mt-3 sm:mt-0">
+      <input id="search" type="text" placeholder="Search news..."
+        class="px-3 py-2 rounded-md bg-gray-800 text-white border border-neon/30 focus:ring-2 focus:ring-neon outline-none w-48 sm:w-72" />
+      <button id="searchBtn"
+        class="px-4 py-2 rounded-md bg-neon text-black font-semibold hover:brightness-125 transition-all duration-200">Search</button>
+      <button id="themeToggle"
+        class="px-3 py-2 rounded-md bg-gray-800 hover:bg-gray-700 text-neon text-xl transition-all duration-200">☀️</button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main id="newsContainer" class="p-6 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></main>
+
+  <!-- Pagination -->
+  <div class="flex justify-center items-center gap-4 mt-8 mb-12">
+    <button id="prevBtn" class="px-4 py-2 rounded-md bg-gray-800 text-neon border border-neon/40 hover:bg-neon hover:text-black transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed">← Previous</button>
+    <span id="pageIndicator" class="text-gray-300">Page 1</span>
+    <button id="nextBtn" class="px-4 py-2 rounded-md bg-gray-800 text-neon border border-neon/40 hover:bg-neon hover:text-black transition-all duration-300">Next →</button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center mt-10 py-6 border-t border-neon/30 bg-black/30 backdrop-blur-md text-gray-400">
+    © 2025 <span class="text-neon">Briefly</span> | Designed by <span class="text-neon font-semibold">Abhijith R Pillai</span>
+  </footer>
+
+  <script>
+    const newsContainer = document.getElementById('newsContainer');
+    const searchInput = document.getElementById('search');
+    const searchBtn = document.getElementById('searchBtn');
+    const themeToggle = document.getElementById('themeToggle');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageIndicator = document.getElementById('pageIndicator');
+
+    let query = "latest";
+    let page = 1;
+
+    // ✅ Theme Toggle
+    function updateThemeIcon() {
+      themeToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+    }
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+      updateThemeIcon();
+    }
+    if (localStorage.getItem('theme') === 'light') document.body.classList.remove('dark');
+    updateThemeIcon();
+    themeToggle.addEventListener('click', toggleTheme);
+
+    // ✅ Fetch News
+    async function fetchNews() {
+      newsContainer.innerHTML = `<div class="col-span-full text-center text-gray-400 text-lg py-20 animate-pulse">Loading news...</div>`;
+      try {
+        const res = await fetch(`api.php?q=${encodeURIComponent(query)}&page=${page}`);
+        const data = await res.json();
+
+        if (!data.articles || data.articles.length === 0) {
+          newsContainer.innerHTML = `<p class="col-span-full text-center text-gray-500 text-lg py-20">No articles found.</p>`;
+          return;
+        }
+
+        newsContainer.innerHTML = data.articles.map(article => `
+          <div class="bg-gray-900/60 rounded-xl overflow-hidden shadow-lg hover:shadow-[0_0_25px_#00d9ff80] border border-gray-800 hover:border-neon/40 transform hover:-translate-y-2 transition-all duration-300 flex flex-col">
+            <img src="${article.image || 'https://via.placeholder.com/400x200'}" class="w-full h-48 object-cover" alt="">
+            <div class="p-4 flex flex-col flex-1">
+              <h2 class="font-semibold text-lg mb-2 text-neon drop-shadow-[0_0_5px_#00d9ff]">${article.title}</h2>
+              <p class="text-gray-300 text-sm flex-1">${article.description || ''}</p>
+              <a href="${article.url}" target="_blank" class="mt-3 inline-block text-sm text-neon hover:text-white font-medium transition-all duration-200">Read More →</a>
+            </div>
+          </div>
+        `).join('');
+
+        pageIndicator.textContent = `Page ${page}`;
+        prevBtn.disabled = page === 1;
+      } catch (err) {
+        newsContainer.innerHTML = `<p class="col-span-full text-center text-red-400 text-lg py-20">Something went wrong.</p>`;
+      }
+    }
+
+    nextBtn.addEventListener('click', () => { page++; fetchNews(); });
+    prevBtn.addEventListener('click', () => { if (page > 1) page--; fetchNews(); });
+    searchBtn.addEventListener('click', () => { query = searchInput.value.trim() || "latest"; page = 1; fetchNews(); });
+
+    fetchNews();
+  </script>
+</body>
+</html>

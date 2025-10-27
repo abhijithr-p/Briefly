@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Briefly | Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            neon: '#00d9ff',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="dark bg-gradient-to-br from-[#0a0a0a] via-[#0f1923] to-[#000a1f] text-white min-h-screen flex items-center justify-center flex-col transition-all duration-700">
+
+  <div class="text-center animate-fade-in">
+    <h1 class="text-5xl font-extrabold mb-4 text-neon drop-shadow-[0_0_25px_#00d9ff]">📰 Briefly</h1>
+    <p class="text-gray-300 text-lg mb-8">Stay informed. Stay inspired.</p>
+    <button onclick="window.location.href='loading.html'"
+      class="px-6 py-3 rounded-xl bg-neon text-black font-bold text-lg hover:brightness-125 transition-all duration-300 shadow-[0_0_20px_#00d9ff80]">
+      Explore Now →
+    </button>
+  </div>
+
+  <footer class="absolute bottom-6 text-gray-500 text-sm">
+     © 2025 <span class="text-neon">Briefly</span> | Designed by <span class="text-neon font-semibold">Abhijith R Pillai</span>
+  </footer>
+
+  <style>
+    @keyframes fade-in { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+    .animate-fade-in { animation: fade-in 1s ease-out forwards; }
+  </style>
+</body>
+</html>
